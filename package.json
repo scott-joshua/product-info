@@ -4,7 +4,6 @@
     "version": "0.0.1",
     "private": true,
     "dependencies": {
-        "express": "latest",
-        "aws-serverless-express": "latest"
+        "node-fetch": "^1.7.3"
     }
 }

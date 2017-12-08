@@ -9,7 +9,7 @@ Parameters:
     Description: AWS CodeStar projectID used to associate new resources to team members
 
 Resources:
-  HelloWorld:
+  Product:
     Type: AWS::Serverless::Function
     Properties:
       Handler: index.handler
@@ -21,10 +21,6 @@ Resources:
         GetEvent:
           Type: Api
           Properties:
-            Path: /
+            Path: /product/{CountryCode}/{SKU}
             Method: get
-        PostEvent:
-          Type: Api
-          Properties:
-            Path: /
-            Method: post
+
