@@ -5,10 +5,9 @@ AWS.config.update({region: "us-west-2"});
 const docClient = new AWS.DynamoDB.DocumentClient();
 const fetch = require("node-fetch");
 
+let environment = process.env.NODE_ENV;
 
-
-
-exports.handler = (event, context, callback) => {
+exports.httphandler = (event, context, callback) => {
     let sku = event['pathParameters']['SKU'];
     let countryCode = event['pathParameters']['CountryCode']
     ;
@@ -20,11 +19,13 @@ exports.handler = (event, context, callback) => {
         },
     });
     getProduct(sku, countryCode, done);
-}
+};
 
 
 
-
+exports.handler = (event, context, callback) => {
+    getProduct(event.sku, event.CountryCode, callback);
+};
 
 
 const getProduct = function(sku, countryCode, callback) {
@@ -54,8 +55,8 @@ const loadSKU = function (sku, countryCode, callback) {
         body: JSON.stringify(body),
         headers: {
             'Content-Type': 'application/json',
-            'client_id': '735b1eb810304bba966af0891ab54053',
-            'client_secret': '0deea37049e84157A406C0C01D29F300'
+            'client_id': '735b1eb810304bba966af0891ab54053',  //environment.client_id
+            'client_secret': '0deea37049e84157A406C0C01D29F300' //environment.client_secret
         },
     })
         .then((response) => {
