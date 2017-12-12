@@ -24,32 +24,55 @@ exports.httphandler = (event, context, callback) => {
 
 
 exports.handler = (event, context, callback) => {
-    getProduct(event.sku, event.CountryCode, callback);
+    console.log("Event data", event);
+    getProducts(event.Items, event.CountryCode, callback);
 };
 
 
 const getProduct = function(sku, countryCode, callback) {
+    console.log("Retrieveing PRoduct Pricing" + sku +",  " + countryCode);
+
     docClient.get({
         TableName: 'Products',
         Key: {SKU: sku, CountryCode: countryCode}
     },  function(err, data) {
-        if(!data.Item){
-            loadSKU(sku, countryCode, function(err, data){
-                if(!err){
-                    getProduct(sku, countryCode, callback)
-                }else{
-                    callback(err, data); //error loading SKU from SAP
-                }
-            });
+        if(err){
+            console.log("Error Retrieveing Product Pricing", data);
         }else{
-            callback(err, data.Item);
+            console.log("no error:", data);
+            if(!data.Item){
+                loadSKU(sku, countryCode, function(err, data){
+                    if(!err){
+                        getProduct(sku, countryCode, callback)
+                    }else{
+                        callback(err, data); //error loading SKU from SAP
+                    }
+                });
+            }else{
+                callback(err, data.Item);
+            }
         }
+    });
+};
+
+const getProducts = function(skus, CountryCode, callback){
+    console.log("Got the products");
+    let keys = [];
+    skus.forEach(function(item){
+        keys.push({SKU:item.SKU, CountryCode});
+    });
+    console.log("Got the keys", keys);
+
+    return docClient.batchGet({ RequestItems: {Products: { Keys: keys,} }},  function(err, data) {
+        callback(err, data.Responses.Products);
     });
 };
 
 
 const loadSKU = function (sku, countryCode, callback) {
     let body = {"CountryCode":countryCode,"Item":[{"SKU":sku}]};
+
+    console.log("looking up product", sku);
     fetch('https://www.nuskin.com/sales/api/v2/product/status?filter=,pricing', {
         method: 'POST',
         body: JSON.stringify(body),
@@ -66,10 +89,10 @@ const loadSKU = function (sku, countryCode, callback) {
             return Promise.reject(new Error(
                 `Failed to fetch ${response.url}: ${response.status} ${response.statusText}`));
         })
-        .then(response => response.buffer())
-        .then((buffer) => {
-
-                const product = JSON.parse(buffer).productStatus[0];
+        .then(response => response.json())
+        .then((json) => {
+                const product = json.productStatus[0];
+                console.log("response form fetch", product);
                 docClient.put({
                     TableName: 'Products',
                     Item: {
