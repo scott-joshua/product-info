@@ -99,12 +99,13 @@ const loadSKU = function (sku, countryCode, callback) {
                         SKU: sku,
                         CountryCode: countryCode,
                         price: {
-                            retail: product.price.WRTL,
-                            wholesale: product.price.WWHL,
+                            RTL: product.price.WRTL,
+                            WHL: product.price.WWHL,
                             psv: product.psv.WWHL,
-                            csv: product.csv.WWHL
+                            csv: product.csv.WWHL,
+                            taxbase: product.price.RTL,
+                            taxcode: 40030
                         },
-                        taxbase: product.price.RTL,
                         timestamp: Date.now()
                     }
                 }, function (err, data) {
