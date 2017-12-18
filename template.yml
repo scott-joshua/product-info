@@ -26,7 +26,7 @@ Resources:
   ProductPrice:
       Type: AWS::Serverless::Function
       Properties:
-        Handler: index.handler
+        Handler: index.ProductPricing
         Runtime: nodejs4.3
         Role:
           Fn::ImportValue:

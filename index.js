@@ -23,7 +23,7 @@ exports.httphandler = (event, context, callback) => {
 
 
 
-exports.handler = (event, context, callback) => {
+exports.ProductPricing = (event, context, callback) => {
     console.log("Event data", event);
     getProducts(event.Items, event.CountryCode, callback);
 };
